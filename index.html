@@ -22,18 +22,21 @@
 
     /* Container for the background and centered content */
     .container {
-      min-height: 100vh;              /* fallback for browsers that ignore -webkit-fill-available */
-      height: -webkit-fill-available; /* iOS Safari fix */
+      min-height: 100vh;
+  height: -webkit-fill-available;
 
-      background: url('images/green-background.jpg') center center no-repeat;
-      background-size: cover;
+  /* The new "dynamic" viewport height for iOS Safari 15.4+ */
+  height: 100dvh; 
 
-      position: relative;
+  background: url('images/green-background.jpg') center center no-repeat;
+  background-size: cover;
 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
     }
 
     /* Centered text styles */
