@@ -21,11 +21,15 @@
 
     /* Container for the background and centered content */
     .container {
+      min-height: 100vh;              /* fallback for browsers that ignore -webkit-fill-available */
+      height: -webkit-fill-available; /* iOS Safari fix */
+
       background: url('images/green-background.jpg') center center no-repeat;
       background-size: cover;
-      height: 100vh;
-      position: relative; /* So we can absolutely position the bottom image */
-      display: flex;      /* Use flexbox to center the text */
+
+      position: relative;
+
+      display: flex;
       justify-content: center;
       align-items: center;
       text-align: center;
