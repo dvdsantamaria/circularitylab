@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Circularity Lab</title>
   
   <!-- Preconnect to improve performance when fetching Google Fonts -->
@@ -13,30 +13,29 @@
   
   <style>
     /* Reset default margins and padding */
-   html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  overflow: hidden; /* This removes scrollbars entirely */
-}
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+    }
 
     /* Container for the background and centered content */
     .container {
-      min-height: 100vh;
+    min-height: 100vh;
   height: -webkit-fill-available;
 
   /* The new "dynamic" viewport height for iOS Safari 15.4+ */
   height: 100dvh; 
 
-  background: url('images/green-background.jpg') center center no-repeat;
-  background-size: cover;
+      background: url('images/green-background.jpg') center center no-repeat;
+      background-size: cover;
 
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  position: relative;
-}
+      position: relative;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
     }
 
     /* Centered text styles */
