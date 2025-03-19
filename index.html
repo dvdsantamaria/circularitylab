@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Circularity Lab</title>
+  
+  <!-- Preconnect to improve performance when fetching Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- Include a font family similar to Alexandria (Montserrat in this example) -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet" />
+  
   <style>
     /* Reset default margins and padding */
     html, body {
@@ -16,12 +23,9 @@
     .container {
       background: url('images/green-background.jpg') center center no-repeat;
       background-size: cover;
-      /* Full viewport height */
       height: 100vh;
-      /* Position relative so we can absolutely position the bottom image */
-      position: relative;
-      /* Use flexbox to center the text */
-      display: flex;
+      position: relative; /* So we can absolutely position the bottom image */
+      display: flex;      /* Use flexbox to center the text */
       justify-content: center;
       align-items: center;
       text-align: center;
@@ -29,23 +33,20 @@
 
     /* Centered text styles */
     .centered-text {
+      font-family: 'Montserrat', sans-serif; /* Use Montserrat from Google Fonts */
       color: #fff;
       font-size: 2em;
-      /* Add some padding on smaller screens so text doesn’t stick to edges */
-      margin: 0 200px;
-      /* Example text shadow */
+      margin: 0 200px; /* Adjust as needed for your design */
       text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
     }
 
     /* The white PNG at the bottom */
     .bottom-image {
-      /* Absolutely position it at the bottom center */
       position: absolute;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      /* Adjust max-width as needed for responsiveness */
-      max-width: 150px;
+      max-width: 150px; /* Adjust as needed */
       width: 100%;
       height: auto;
     }
@@ -54,6 +55,7 @@
     @media (max-width: 768px) {
       .centered-text {
         font-size: 1.5em;
+        margin: 0 20px; /* Reduce side margins for smaller screens */
       }
       .bottom-image {
         max-width: 120px;
@@ -68,7 +70,6 @@
       We are reimagining our relationship with nature to achieve a balance 
       between progress and preservation
     </h1>
-
     <img src="images/circularity-lab-logo.png" alt="logotype" class="bottom-image" />
   </div>
 
