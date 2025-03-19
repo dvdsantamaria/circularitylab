@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Circularity Lab</title>
   
   <!-- Preconnect to improve performance when fetching Google Fonts -->
@@ -13,11 +13,12 @@
   
   <style>
     /* Reset default margins and padding */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-    }
+   html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* This removes scrollbars entirely */
+}
 
     /* Container for the background and centered content */
     .container {
