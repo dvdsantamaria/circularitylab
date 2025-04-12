@@ -11,89 +11,83 @@
       box-sizing: border-box;
     }
 
-    body, html {
-      height: 100%;
-      overflow-x: hidden;
+    body {
       font-family: sans-serif;
     }
 
-    .section {
-      min-height: 100vh;
-      padding: 80px 20px;
+    .spacer {
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       background: #f0f0f0;
     }
 
-    .section.dark {
-      background: #222;
-      color: white;
-    }
-
-    #video-section {
-      height: 5000px;
+    #video-wrapper {
+      height: 500px;
+      overflow: hidden;
       position: relative;
+      background: black;
     }
 
     #scroll-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      z-index: -1;
       pointer-events: none;
     }
 
     .video-text {
-      position: fixed;
-      top: 40px;
-      left: 40px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
       color: white;
-      font-size: 2rem;
-      text-shadow: 1px 1px 6px rgba(0,0,0,0.6);
-      z-index: 10;
+      font-size: 1.5rem;
+      text-shadow: 0 0 8px black;
+      z-index: 2;
+    }
+
+    #scroll-area {
+      height: 3000px; /* largo de scroll para controlar el video */
+      background: linear-gradient(white, lightgray);
     }
   </style>
 </head>
 <body>
 
-  <div class="section">
-    <h2>Welcome</h2>
+  <div class="spacer">
+    <h2>Scroll down to control the video</h2>
   </div>
 
-  <div class="section dark">
-    <p>Scroll down to trigger the video-based parallax</p>
-  </div>
-
-  <section id="video-section">
+  <div id="video-wrapper">
     <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-controlled video</div>
-  </section>
-
-  <div class="section">
-    <h2>More Content Below</h2>
+    <div class="video-text">Scroll-synced video (500px window)</div>
   </div>
 
-  <div class="section dark">
-    <p>You made it past the video section!</p>
+  <div id="scroll-area"></div>
+
+  <div class="spacer">
+    <h2>You reached the end</h2>
   </div>
 
   <script>
     const video = document.getElementById("scroll-video");
 
+    // Aseguramos que el video pueda actualizarse de forma fluida
     video.addEventListener("loadedmetadata", () => {
       const duration = video.duration;
 
-      window.addEventListener("scroll", () => {
+      const updateVideoTime = () => {
         const scrollTop = window.scrollY;
         const maxScroll = document.body.scrollHeight - window.innerHeight;
         const scrollFraction = scrollTop / maxScroll;
         video.currentTime = scrollFraction * duration;
-      });
+        requestAnimationFrame(updateVideoTime);
+      };
+
+      requestAnimationFrame(updateVideoTime);
     });
   </script>
+
 </body>
 </html>
