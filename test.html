@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll-Controlled Video</title>
+  <title>Scroll-Synced Video Parallax</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -24,7 +24,7 @@
     }
 
     #video-wrapper {
-      height: 500px;
+      height: 100vh;
       overflow: hidden;
       position: relative;
       background: black;
@@ -48,7 +48,7 @@
     }
 
     #scroll-area {
-      height: 3000px; /* largo de scroll para controlar el video */
+      height: 5500px;
       background: linear-gradient(white, lightgray);
     }
   </style>
@@ -56,24 +56,23 @@
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to control the video</h2>
+    <h2>Scroll down to control the bush.mp4 video</h2>
   </div>
 
   <div id="video-wrapper">
     <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video (500px window)</div>
+    <div class="video-text">Scroll-synced video (bush.mp4)</div>
   </div>
 
   <div id="scroll-area"></div>
 
   <div class="spacer">
-    <h2>You reached the end</h2>
+    <h2>You've reached the end</h2>
   </div>
 
   <script>
     const video = document.getElementById("scroll-video");
 
-    // Aseguramos que el video pueda actualizarse de forma fluida
     video.addEventListener("loadedmetadata", () => {
       const duration = video.duration;
 
@@ -81,7 +80,13 @@
         const scrollTop = window.scrollY;
         const maxScroll = document.body.scrollHeight - window.innerHeight;
         const scrollFraction = scrollTop / maxScroll;
-        video.currentTime = scrollFraction * duration;
+        const newTime = scrollFraction * duration;
+
+        // Solo actualizar si la diferencia es significativa
+        if (Math.abs(video.currentTime - newTime) > 0.05) {
+          video.currentTime = newTime;
+        }
+
         requestAnimationFrame(updateVideoTime);
       };
 
