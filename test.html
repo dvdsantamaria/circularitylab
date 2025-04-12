@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll Synced Video with HD Swap</title>
+  <title>Scroll Synced Video with HD Ready Label</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -66,12 +66,12 @@
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to start video playback</h2>
+    <h2>Scroll down to control the video</h2>
   </div>
 
   <section id="video-scroll-zone">
     <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video (HD loading…)</div>
+    <div class="video-text" id="status-label">Scroll-synced video (HD loading…)</div>
     <div id="debug-time">0.00s</div>
   </section>
 
@@ -82,8 +82,9 @@
   <script>
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
-    const label = document.querySelector(".video-text");
-    const duration = 11; // duración real del video
+    const label = document.getElementById("status-label");
+
+    const duration = 11;
     let loadedHD = false;
 
     const updateVideoTime = () => {
@@ -122,17 +123,17 @@
         video.currentTime = currentTime;
         if (!wasPaused) video.play();
 
-        // ✅ Actualizar texto cuando HD está listo
+        // ✅ Actualizamos el texto al cargar HD
         if (label) label.textContent = "Scroll-synced video (HD ready)";
         console.log("Switched to HD video.");
       });
     };
 
-    // Usamos IntersectionObserver para cargar HD solo si el video está visible
+    // Swap HD solo si el video entra en pantalla (50% o más)
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         swapToHD();
-        observer.disconnect(); // Solo una vez
+        observer.disconnect();
       }
     }, { threshold: 0.5 });
 
