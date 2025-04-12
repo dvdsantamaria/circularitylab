@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll-Controlled Video with HD Enhancement</title>
+  <title>Scroll-Synced Full 11s Video</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -48,20 +48,34 @@
     }
 
     #scroll-area {
-      height: 10000px; /* más scroll para aprovechar los 11s */
+      height: 10000px;
       background: linear-gradient(white, lightgray);
+    }
+
+    #debug-time {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      color: white;
+      background: rgba(0,0,0,0.5);
+      padding: 4px 8px;
+      font-size: 14px;
+      border-radius: 4px;
+      z-index: 999;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to control the video</h2>
+    <h2>Scroll down to control the full 11s video</h2>
   </div>
 
   <div id="video-wrapper">
-    <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video (HD loading…)</div>
+    <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
+    <div class="video-text">Scroll-synced video (11s full range)</div>
+    <div id="debug-time">0.00s</div>
   </div>
 
   <div id="scroll-area"></div>
@@ -72,54 +86,29 @@
 
   <script>
     const video = document.getElementById("scroll-video");
-    let duration = 0;
-    let targetTime = 0;
-    let loadedHD = false;
+    const debug = document.getElementById("debug-time");
+
+    // Forzar duración manual a 11s (reales)
+    const forcedDuration = 11;
 
     const updateVideoTime = () => {
       const scrollTop = window.scrollY;
       const maxScroll = document.body.scrollHeight - window.innerHeight;
       const scrollFraction = scrollTop / maxScroll;
-      targetTime = scrollFraction * duration;
+      const newTime = scrollFraction * forcedDuration;
 
-      // Solo actualizar si diferencia significativa
-      if (Math.abs(video.currentTime - targetTime) > 0.05) {
-        video.currentTime = targetTime;
+      // Mostrar tiempo como debug
+      debug.textContent = `${newTime.toFixed(2)}s`;
+
+      if (Math.abs(video.currentTime - newTime) > 0.05) {
+        video.currentTime = newTime;
       }
 
       requestAnimationFrame(updateVideoTime);
     };
 
-    // Cuando el video inicial se carga
-    video.addEventListener("loadedmetadata", () => {
-      duration = video.duration;
+    video.addEventListener("loadeddata", () => {
       requestAnimationFrame(updateVideoTime);
-    });
-
-    // Cargar HD luego de un tiempo de inactividad o carga completa
-    let idleTimeout;
-    const swapToHD = () => {
-      if (loadedHD) return;
-      loadedHD = true;
-
-      const current = video.currentTime;
-      video.src = "bush.mp4";
-      video.load();
-      video.addEventListener("loadedmetadata", () => {
-        video.currentTime = current;
-      });
-    };
-
-    // Swap HD luego de 2s sin scrollear
-    const onScroll = () => {
-      clearTimeout(idleTimeout);
-      idleTimeout = setTimeout(swapToHD, 2000);
-    };
-
-    window.addEventListener("scroll", onScroll);
-    window.addEventListener("load", () => {
-      // también lo podés forzar luego de carga completa
-      setTimeout(swapToHD, 4000);
     });
   </script>
 
