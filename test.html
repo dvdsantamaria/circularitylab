@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll Synced Video (HD Swap Fixed)</title>
+  <title>Scroll-Controlled Full Video</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -25,38 +25,31 @@
 
     #video-scroll-zone {
       height: 8000px;
-      background: transparent;
-    }
-
-    /* ✅ Video y textos sobrepuestos al fondo */
-    #video-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      pointer-events: none;
+      position: relative;
+      background: #111;
     }
 
     #scroll-video {
-      width: 100%;
-      height: 100%;
+      position: sticky;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
+      pointer-events: none;
     }
 
     .video-text {
-      position: absolute;
+      position: fixed;
       top: 20px;
       left: 20px;
       color: white;
       font-size: 1.5rem;
       text-shadow: 0 0 8px black;
-      z-index: 2;
+      z-index: 10;
     }
 
     #debug-time {
-      position: absolute;
+      position: fixed;
       top: 20px;
       right: 20px;
       color: white;
@@ -64,22 +57,20 @@
       padding: 5px 10px;
       font-family: monospace;
       border-radius: 4px;
-      z-index: 2;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to control the video</h2>
+    <h2>Scroll down to start video playback</h2>
   </div>
 
   <section id="video-scroll-zone">
-    <div id="video-overlay">
-      <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
-      <div class="video-text" id="status-label">Scroll-synced video (HD loading…)</div>
-      <div id="debug-time">0.00s</div>
-    </div>
+    <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
+    <div class="video-text">Scroll-synced video</div>
+    <div id="debug-time">0.00s</div>
   </section>
 
   <div class="spacer">
@@ -89,20 +80,19 @@
   <script>
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
-    const label = document.getElementById("status-label");
 
-    const duration = 11;
-    let loadedHD = false;
+    const duration = 11; // forzar duración
 
     const updateVideoTime = () => {
       const zone = document.getElementById("video-scroll-zone");
+      const rect = zone.getBoundingClientRect();
       const zoneHeight = zone.offsetHeight;
-      const start = zone.offsetTop;
-      const end = start + zoneHeight - window.innerHeight;
+      const scrollY = window.scrollY + window.innerHeight;
 
-      const scrollY = Math.min(Math.max(window.scrollY, start), end);
-      const progress = (scrollY - start) / (end - start);
-      const newTime = progress * duration;
+      // Cuánto scrolleaste dentro de esa sección
+      const scrolled = Math.min(Math.max(0, window.scrollY - zone.offsetTop), zoneHeight - window.innerHeight);
+      const scrollFraction = scrolled / (zoneHeight - window.innerHeight);
+      const newTime = scrollFraction * duration;
 
       debug.textContent = `${newTime.toFixed(2)}s`;
 
@@ -116,34 +106,6 @@
     video.addEventListener("loadeddata", () => {
       requestAnimationFrame(updateVideoTime);
     });
-
-    const swapToHD = () => {
-      if (loadedHD) return;
-      loadedHD = true;
-
-      const currentTime = video.currentTime;
-      const wasPaused = video.paused;
-
-      video.src = "bush.mp4";
-      video.load();
-      video.addEventListener("loadeddata", () => {
-        video.currentTime = currentTime;
-        if (!wasPaused) video.play();
-
-        // ✅ Cambiar el texto al cargar el HD
-        if (label) label.textContent = "Scroll-synced video (HD ready)";
-        console.log("Switched to HD video.");
-      });
-    };
-
-    const observer = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting) {
-        swapToHD();
-        observer.disconnect();
-      }
-    }, { threshold: 0.5 });
-
-    observer.observe(video);
   </script>
 
 </body>
