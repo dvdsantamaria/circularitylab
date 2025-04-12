@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll Synced Video - Stable Scroll</title>
+  <title>Scroll Synced Video (HD Swap Fixed)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -24,34 +24,39 @@
     }
 
     #video-scroll-zone {
-      height: 8000px; /* asegura espacio de scroll suficiente */
-      position: relative;
-      background: #111;
+      height: 8000px;
+      background: transparent;
     }
 
-    #scroll-video {
-      position: fixed; /* importante: fixed, no sticky */
+    /* ✅ Video y textos sobrepuestos al fondo */
+    #video-overlay {
+      position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
-      object-fit: cover;
+      z-index: 1;
       pointer-events: none;
-      z-index: -1;
+    }
+
+    #scroll-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .video-text {
-      position: fixed;
+      position: absolute;
       top: 20px;
       left: 20px;
       color: white;
       font-size: 1.5rem;
       text-shadow: 0 0 8px black;
-      z-index: 10;
+      z-index: 2;
     }
 
     #debug-time {
-      position: fixed;
+      position: absolute;
       top: 20px;
       right: 20px;
       color: white;
@@ -59,7 +64,7 @@
       padding: 5px 10px;
       font-family: monospace;
       border-radius: 4px;
-      z-index: 10;
+      z-index: 2;
     }
   </style>
 </head>
@@ -70,9 +75,11 @@
   </div>
 
   <section id="video-scroll-zone">
-    <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video (HD loading…)</div>
-    <div id="debug-time">0.00s</div>
+    <div id="video-overlay">
+      <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
+      <div class="video-text" id="status-label">Scroll-synced video (HD loading…)</div>
+      <div id="debug-time">0.00s</div>
+    </div>
   </section>
 
   <div class="spacer">
@@ -82,8 +89,9 @@
   <script>
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
+    const label = document.getElementById("status-label");
 
-    const duration = 11; // duración real del video
+    const duration = 11;
     let loadedHD = false;
 
     const updateVideoTime = () => {
@@ -122,8 +130,9 @@
         video.currentTime = currentTime;
         if (!wasPaused) video.play();
 
-        const label = document.querySelector(".video-text");
+        // ✅ Cambiar el texto al cargar el HD
         if (label) label.textContent = "Scroll-synced video (HD ready)";
+        console.log("Switched to HD video.");
       });
     };
 
