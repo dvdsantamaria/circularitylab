@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll Synced Video - Stable Scroll</title>
+  <title>Scroll Synced Video with HD Swap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -24,13 +24,13 @@
     }
 
     #video-scroll-zone {
-      height: 8000px; /* asegura espacio de scroll suficiente */
+      height: 8000px;
       position: relative;
       background: #111;
     }
 
     #scroll-video {
-      position: fixed; /* importante: fixed, no sticky */
+      position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
@@ -66,7 +66,7 @@
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to control the video</h2>
+    <h2>Scroll down to start video playback</h2>
   </div>
 
   <section id="video-scroll-zone">
@@ -82,7 +82,7 @@
   <script>
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
-
+    const label = document.querySelector(".video-text");
     const duration = 11; // duración real del video
     let loadedHD = false;
 
@@ -122,15 +122,17 @@
         video.currentTime = currentTime;
         if (!wasPaused) video.play();
 
-        const label = document.querySelector(".video-text");
+        // ✅ Actualizar texto cuando HD está listo
         if (label) label.textContent = "Scroll-synced video (HD ready)";
+        console.log("Switched to HD video.");
       });
     };
 
+    // Usamos IntersectionObserver para cargar HD solo si el video está visible
     const observer = new IntersectionObserver(entries => {
       if (entries[0].isIntersecting) {
         swapToHD();
-        observer.disconnect();
+        observer.disconnect(); // Solo una vez
       }
     }, { threshold: 0.5 });
 
