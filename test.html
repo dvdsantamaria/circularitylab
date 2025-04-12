@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll-Controlled Video with HD Swap</title>
+  <title>Scroll Synced Video - Stable Scroll</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -24,18 +24,20 @@
     }
 
     #video-scroll-zone {
-      height: 8000px;
+      height: 8000px; /* asegura espacio de scroll suficiente */
       position: relative;
       background: #111;
     }
 
     #scroll-video {
-      position: sticky;
+      position: fixed; /* importante: fixed, no sticky */
       top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       object-fit: cover;
       pointer-events: none;
+      z-index: -1;
     }
 
     .video-text {
@@ -64,7 +66,7 @@
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to start video playback</h2>
+    <h2>Scroll down to control the video</h2>
   </div>
 
   <section id="video-scroll-zone">
@@ -81,16 +83,18 @@
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
 
-    const forcedDuration = 11;
+    const duration = 11; // duración real del video
     let loadedHD = false;
-    let idleTimer;
 
     const updateVideoTime = () => {
       const zone = document.getElementById("video-scroll-zone");
       const zoneHeight = zone.offsetHeight;
-      const scrolled = Math.min(Math.max(0, window.scrollY - zone.offsetTop), zoneHeight - window.innerHeight);
-      const scrollFraction = scrolled / (zoneHeight - window.innerHeight);
-      const newTime = scrollFraction * forcedDuration;
+      const start = zone.offsetTop;
+      const end = start + zoneHeight - window.innerHeight;
+
+      const scrollY = Math.min(Math.max(window.scrollY, start), end);
+      const progress = (scrollY - start) / (end - start);
+      const newTime = progress * duration;
 
       debug.textContent = `${newTime.toFixed(2)}s`;
 
@@ -105,7 +109,6 @@
       requestAnimationFrame(updateVideoTime);
     });
 
-    // 🔁 Swap a HD cuando el usuario no scrollea por 2 segundos
     const swapToHD = () => {
       if (loadedHD) return;
       loadedHD = true;
@@ -118,21 +121,20 @@
       video.addEventListener("loadeddata", () => {
         video.currentTime = currentTime;
         if (!wasPaused) video.play();
-        console.log("Switched to HD video.");
+
+        const label = document.querySelector(".video-text");
+        if (label) label.textContent = "Scroll-synced video (HD ready)";
       });
     };
 
-    // Reiniciar temporizador cada vez que el usuario scrollea
-    const handleScrollIdle = () => {
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(swapToHD, 2000);
-    };
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        swapToHD();
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 });
 
-    window.addEventListener("scroll", handleScrollIdle);
-    window.addEventListener("load", () => {
-      // También activamos backup por si no scrollea pero espera
-      setTimeout(swapToHD, 4000);
-    });
+    observer.observe(video);
   </script>
 
 </body>
