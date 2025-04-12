@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll-Controlled Full Video</title>
+  <title>Scroll-Controlled Video with HD Swap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -68,8 +68,8 @@
   </div>
 
   <section id="video-scroll-zone">
-    <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video</div>
+    <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
+    <div class="video-text">Scroll-synced video (HD loading…)</div>
     <div id="debug-time">0.00s</div>
   </section>
 
@@ -81,18 +81,16 @@
     const video = document.getElementById("scroll-video");
     const debug = document.getElementById("debug-time");
 
-    const duration = 11; // forzar duración
+    const forcedDuration = 11;
+    let loadedHD = false;
+    let idleTimer;
 
     const updateVideoTime = () => {
       const zone = document.getElementById("video-scroll-zone");
-      const rect = zone.getBoundingClientRect();
       const zoneHeight = zone.offsetHeight;
-      const scrollY = window.scrollY + window.innerHeight;
-
-      // Cuánto scrolleaste dentro de esa sección
       const scrolled = Math.min(Math.max(0, window.scrollY - zone.offsetTop), zoneHeight - window.innerHeight);
       const scrollFraction = scrolled / (zoneHeight - window.innerHeight);
-      const newTime = scrollFraction * duration;
+      const newTime = scrollFraction * forcedDuration;
 
       debug.textContent = `${newTime.toFixed(2)}s`;
 
@@ -105,6 +103,35 @@
 
     video.addEventListener("loadeddata", () => {
       requestAnimationFrame(updateVideoTime);
+    });
+
+    // 🔁 Swap a HD cuando el usuario no scrollea por 2 segundos
+    const swapToHD = () => {
+      if (loadedHD) return;
+      loadedHD = true;
+
+      const currentTime = video.currentTime;
+      const wasPaused = video.paused;
+
+      video.src = "bush.mp4";
+      video.load();
+      video.addEventListener("loadeddata", () => {
+        video.currentTime = currentTime;
+        if (!wasPaused) video.play();
+        console.log("Switched to HD video.");
+      });
+    };
+
+    // Reiniciar temporizador cada vez que el usuario scrollea
+    const handleScrollIdle = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(swapToHD, 2000);
+    };
+
+    window.addEventListener("scroll", handleScrollIdle);
+    window.addEventListener("load", () => {
+      // También activamos backup por si no scrollea pero espera
+      setTimeout(swapToHD, 4000);
     });
   </script>
 
