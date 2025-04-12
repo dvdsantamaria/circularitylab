@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scroll-Synced Video Parallax</title>
+  <title>Scroll-Controlled Video with HD Enhancement</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -48,7 +48,7 @@
     }
 
     #scroll-area {
-      height: 5500px;
+      height: 10000px; /* más scroll para aprovechar los 11s */
       background: linear-gradient(white, lightgray);
     }
   </style>
@@ -56,12 +56,12 @@
 <body>
 
   <div class="spacer">
-    <h2>Scroll down to control the bush.mp4 video</h2>
+    <h2>Scroll down to control the video</h2>
   </div>
 
   <div id="video-wrapper">
-    <video id="scroll-video" src="bush.mp4" preload="auto" muted playsinline></video>
-    <div class="video-text">Scroll-synced video (bush.mp4)</div>
+    <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
+    <div class="video-text">Scroll-synced video (HD loading…)</div>
   </div>
 
   <div id="scroll-area"></div>
@@ -72,25 +72,54 @@
 
   <script>
     const video = document.getElementById("scroll-video");
+    let duration = 0;
+    let targetTime = 0;
+    let loadedHD = false;
 
-    video.addEventListener("loadedmetadata", () => {
-      const duration = video.duration;
+    const updateVideoTime = () => {
+      const scrollTop = window.scrollY;
+      const maxScroll = document.body.scrollHeight - window.innerHeight;
+      const scrollFraction = scrollTop / maxScroll;
+      targetTime = scrollFraction * duration;
 
-      const updateVideoTime = () => {
-        const scrollTop = window.scrollY;
-        const maxScroll = document.body.scrollHeight - window.innerHeight;
-        const scrollFraction = scrollTop / maxScroll;
-        const newTime = scrollFraction * duration;
-
-        // Solo actualizar si la diferencia es significativa
-        if (Math.abs(video.currentTime - newTime) > 0.05) {
-          video.currentTime = newTime;
-        }
-
-        requestAnimationFrame(updateVideoTime);
-      };
+      // Solo actualizar si diferencia significativa
+      if (Math.abs(video.currentTime - targetTime) > 0.05) {
+        video.currentTime = targetTime;
+      }
 
       requestAnimationFrame(updateVideoTime);
+    };
+
+    // Cuando el video inicial se carga
+    video.addEventListener("loadedmetadata", () => {
+      duration = video.duration;
+      requestAnimationFrame(updateVideoTime);
+    });
+
+    // Cargar HD luego de un tiempo de inactividad o carga completa
+    let idleTimeout;
+    const swapToHD = () => {
+      if (loadedHD) return;
+      loadedHD = true;
+
+      const current = video.currentTime;
+      video.src = "bush.mp4";
+      video.load();
+      video.addEventListener("loadedmetadata", () => {
+        video.currentTime = current;
+      });
+    };
+
+    // Swap HD luego de 2s sin scrollear
+    const onScroll = () => {
+      clearTimeout(idleTimeout);
+      idleTimeout = setTimeout(swapToHD, 2000);
+    };
+
+    window.addEventListener("scroll", onScroll);
+    window.addEventListener("load", () => {
+      // también lo podés forzar luego de carga completa
+      setTimeout(swapToHD, 4000);
     });
   </script>
 
