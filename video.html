@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scroll Synced Video (HD Swap Fixed)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: sans-serif;
+    }
+
+    .spacer {
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0f0f0;
+    }
+
+    #video-scroll-zone {
+      height: 8000px;
+      background: transparent;
+    }
+
+    /* ✅ Video y textos sobrepuestos al fondo */
+    #video-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #scroll-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-text {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      font-size: 1.5rem;
+      text-shadow: 0 0 8px black;
+      z-index: 2;
+    }
+
+    #debug-time {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      color: white;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 10px;
+      font-family: monospace;
+      border-radius: 4px;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="spacer">
+    <h2>Scroll down to control the video</h2>
+  </div>
+
+  <section id="video-scroll-zone">
+    <div id="video-overlay">
+      <video id="scroll-video" src="bush-low.mp4" preload="auto" muted playsinline></video>
+      <div class="video-text" id="status-label">Scroll-synced video (HD loading…)</div>
+      <div id="debug-time">0.00s</div>
+    </div>
+  </section>
+
+  <div class="spacer">
+    <h2>You've reached the end</h2>
+  </div>
+
+  <script>
+    const video = document.getElementById("scroll-video");
+    const debug = document.getElementById("debug-time");
+    const label = document.getElementById("status-label");
+
+    const duration = 11;
+    let loadedHD = false;
+
+    const updateVideoTime = () => {
+      const zone = document.getElementById("video-scroll-zone");
+      const zoneHeight = zone.offsetHeight;
+      const start = zone.offsetTop;
+      const end = start + zoneHeight - window.innerHeight;
+
+      const scrollY = Math.min(Math.max(window.scrollY, start), end);
+      const progress = (scrollY - start) / (end - start);
+      const newTime = progress * duration;
+
+      debug.textContent = `${newTime.toFixed(2)}s`;
+
+      if (Math.abs(video.currentTime - newTime) > 0.05) {
+        video.currentTime = newTime;
+      }
+
+      requestAnimationFrame(updateVideoTime);
+    };
+
+    video.addEventListener("loadeddata", () => {
+      requestAnimationFrame(updateVideoTime);
+    });
+
+    const swapToHD = () => {
+      if (loadedHD) return;
+      loadedHD = true;
+
+      const currentTime = video.currentTime;
+      const wasPaused = video.paused;
+
+      video.src = "bush.mp4";
+      video.load();
+      video.addEventListener("loadeddata", () => {
+        video.currentTime = currentTime;
+        if (!wasPaused) video.play();
+
+        // ✅ Cambiar el texto al cargar el HD
+        if (label) label.textContent = "Scroll-synced video (HD ready)";
+        console.log("Switched to HD video.");
+      });
+    };
+
+    const observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        swapToHD();
+        observer.disconnect();
+      }
+    }, { threshold: 0.5 });
+
+    observer.observe(video);
+  </script>
+
+</body>
+</html>
